@@ -1,0 +1,11 @@
+*SVN*
+
+* <tt>9/10/2007:</tt> Update documentation to reflect new svn repository location
+
+* <tt>7/30/2007:</tt> Add support for both +FormHelper+ formats when using +form_for+:
+    form_for(@user) do |f|
+      f.text_field :website       # was working already
+      text_field :user, :website  # now supported
+    end
+
+* <tt>7/28/2007:</tt> First public release

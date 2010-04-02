@@ -1,0 +1,6 @@
+/* Styles for templated_attribute plugin */
+
+input.templated_attribute,
+textarea.templated_attribute {
+  color: #aaa;
+}

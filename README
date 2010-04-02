@@ -1,0 +1,113 @@
+= Templated Attribute plugin
+  
+This Rails plugin allows you to declare that certain attributes in your model
+are "templated." A templated attribute has a helpful initial value---kind of
+like a default value---except that these aren't valid data or saved in the
+database. They're suggestions to the user about the expected formatting or
+content of a field.
+
+You can view pre-generated rdocs for this plugin at: 
+http://docs.shiftcommathree.com/rails_plugins/templated_attribute
+
+See the blog post for a more detailed introduction:
+http://www.shiftcommathree.com/articles/templated-attributes
+
+
+
+== Installation
+
+If you're using piston:
+
+    piston import https://svn.shiftcommathree.com/rails_plugins/templated_attribute vendor/plugins/templated_attribute
+    
+Otherwise, use the Rails plugin installer:
+
+    ruby script/plugin install https://svn.shiftcommathree.com/rails_plugins/templated_attribute
+    
+This will also generate <tt>public/javascripts/templated_attribute.js</tt> and
+<tt>public/stylesheets/templated_attribute.css</tt>. It's up to you to include
+these in your layouts. One good way to go is the new asset caching option added
+in <http://dev.rubyonrails.org/changeset/6164> (not available in Rails 1.2.x):
+
+    javascript_include_tag :all, :cache => true
+    stylesheet_link_tag :all, :cache => true
+
+If you need to install or remove the assets manually (for example, because you
+just upgraded to a newer version of the plugin), use these rake tasks:
+
+    rake templated_attribute:install
+    rake templated_attribute:remove
+
+
+
+== Description
+
+This plugin aims to:
+
+1.  pre-fill form fields with these templates, but keep these values out of the
+    database
+2.  specify these values only once in the model
+3.  create a user experience that clearly implies that these values are just
+    templates for valid data
+
+There are actually two kinds of templated attributes provided: those with
+<b>starting values</b>, which are potentially the start of valid data, and
+<b>labels</b>, which are just helpful, ephemeral reminders. An example of a
+starting value template is <tt>http://</tt> for a +website+ attribute; an
+example of a label template is <tt>(123) 555-1234</tt> for a +phone+ attribue.
+(We don't want the user to have to delete our dummy numbers and put in their
+own; it's too much work. Instead we think that the reminder will help coax the
+right format out of the user by itself--so this field gets blanked on focus
+using Javascript, unlike the +website+ attribute, which remains because it's
+the start of valid data.)
+
+
+
+== Usage
+
+See the documentation for the
++templated_attribute+[link:classes/TemplatedAttribute/ActiveRecordExtensions/ClassMethods.html]
+method.
+
+  class User < ActiveRecord::Base
+    templated_attribute :website, :starting_value => 'http://'
+    templated_attribute :phone, :label => '(123) 555-1234'
+  end
+
+Validations work as expected, since unchanged template values get removed in a
+<tt>:before_validation</tt> callback. So you can sprinkle on a little
+<tt>:validates_presence_of</tt> and <tt>:validates_format_of</tt> for a really
+good time.
+
+There's also some nice, unobtrusive Javascript you can generate to get the
+behavior I mentioned above. If you're using +form_for+, it's totally automatic.
+See the documentation for
++text_area+[link:classes/ActionView/Helpers/FormHelper.html] and
++text_field+[link:classes/ActionView/Helpers/FormHelper.html]. It gets
+installed when you install the plugin, or you can install and remove manually
+with these +rake+ tasks:
+
+  rake templated_attribute:install
+  rake templated_attribute:remove
+
+To turn off the Javascript for a given +templated_attribute+--say, because the
+generated stuff doesn't jibe with your fancy-pantsy, AJAX-validating, Grey
+Poupon of a form--just throw <tt>:templated_javascript => false</tt> in the
+options hash for +text_field+ or +text_area+. You'll have to do any styling
+and event handling by yourself.
+
+I'd like to make this work for fields other than +text_field+ and +text_area+;
+the other contenders were +file_field+, which we can't do because the
+Javascript security model doesn't let us touch its value at runtime, and
++password_field+, which I haven't done because showing the template value
+would require dynamically switching the element to a +text_field+ and back (to
+avoid all those asterisks). That one's on the list, though.
+
+
+
+== Endnote
+
+See CHANGELOG[link:files/CHANGELOG.html] for a list of revisions.
+
+By Chris G. Kampmeier. Released under the MIT license--see
+MIT-LICENSE[link:files/MIT-LICENSE.html].
